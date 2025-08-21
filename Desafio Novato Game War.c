@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Criando a estruct Território
+// Criando a estruct TerritÃ³rio
 struct Territorio{
 	char nome [30];
 	char cor [10];
 	int tropas;	
 	};
 
-// Renomeando a struct para Território	
+// Renomeando a struct para Territorio	
 typedef struct Territorio Territorio;
 
 int main (){
@@ -23,6 +23,7 @@ int Territorio [5];
 	
 	
 }
+
 
 
 
