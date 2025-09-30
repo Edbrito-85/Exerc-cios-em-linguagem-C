@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct {
+    char nome[30];   // Nome do território
+    char cor[15];    // Cor/exército
+    int tropas;      // Tropas
+} Territorio;
+
+// Exibir mapa do mundo
+void mostrarMapa(Territorio* mapa, int n) {
+    printf("\nMAPA DO MUNDO - ESTADO ATUAL\n");
+    printf("=====================================\n\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d. %s (Exercito %s, Tropas: %d)\n",
+               i + 1, mapa[i].nome, mapa[i].cor, mapa[i].tropas);
+    }
+    printf("\n");
+}
+
+// Função de ataque
+void atacar(Territorio* atacante, Territorio* defensor) {
+    printf("\n--- RESULTADO DA BATALHA ---\n");
+
+    int dadoAtk = rand() % 6 + 1;
+    int dadoDef = rand() % 6 + 1;
+
+    printf("O atacante %s rolou um dado e tirou: %d\n", atacante->nome, dadoAtk);
+    printf("O defensor %s rolou um dado e tirou: %d\n", defensor->nome, dadoDef);
+
+    if (dadoAtk > dadoDef) {
+        defensor->tropas--;
+        printf("VITORIA DO ATAQUE! O defensor perdeu 1 tropa.\n");
+        if (defensor->tropas <= 0) {
+            printf("O territorio %s foi conquistado pelo exercito %s!\n",
+                   defensor->nome, atacante->cor);
+            strcpy(defensor->cor, atacante->cor);
+            defensor->tropas = 1;
+            atacante->tropas--;
+        }
+    } else {
+        atacante->tropas--;
+        printf("DEFESA RESISTIU! O atacante perdeu 1 tropa.\n");
+    }
+}
+
+// Liberar memória
+void liberarMemoria(Territorio* mapa) {
+    free(mapa);
+}
+
+int main() {
+    srand(time(NULL));
+
+    int n;
+    printf("Quantos territorios deseja cadastrar? ");
+    scanf("%d", &n);
+    getchar();
+
+    Territorio* mapa = (Territorio*) calloc(n, sizeof(Territorio));
+    if (mapa == NULL) {
+        printf("Erro ao alocar memoria!\n");
+        return 1;
+    }
+
+    for (int i = 0; i < n; i++) {
+        printf("\n--- Cadastro do Territorio %d ---\n", i + 1);
+        printf("Nome: ");
+        fgets(mapa[i].nome, sizeof(mapa[i].nome), stdin);
+        mapa[i].nome[strcspn(mapa[i].nome, "\n")] = 0;
+
+        printf("Exercito (cor): ");
+        fgets(mapa[i].cor, sizeof(mapa[i].cor), stdin);
+        mapa[i].cor[strcspn(mapa[i].cor, "\n")] = 0;
+
+        printf("Numero de tropas: ");
+        scanf("%d", &mapa[i].tropas);
+        getchar();
+    }
+
+    int atacante, defensor;
+    do {
+        mostrarMapa(mapa, n);
+
+        printf("--- FASE DE ATAQUE ---\n");
+        printf("Escolha o territorio atacante (1 a %d, ou 0 para sair): ", n);
+        scanf("%d", &atacante);
+        if (atacante == 0) break;
+
+        printf("Escolha o territorio defensor (1 a %d): ", n);
+        scanf("%d", &defensor);
+
+        if (atacante < 1 || atacante > n || defensor < 1 || defensor > n) {
+            printf("? Escolha invalida!\n");
+            continue;
+        }
+        if (atacante == defensor) {
+            printf("? Um territorio nao pode atacar a si mesmo!\n");
+            continue;
+        }
+
+        atacar(&mapa[atacante - 1], &mapa[defensor - 1]);
+
+        printf("\nPressione Enter para continuar para o proximo turno...");
+        getchar(); getchar();
+
+    } while (1);
+
+    liberarMemoria(mapa);
+    return 0;
+}
